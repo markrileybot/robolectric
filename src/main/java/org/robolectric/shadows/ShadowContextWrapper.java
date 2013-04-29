@@ -18,13 +18,13 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Looper;
 import android.view.View;
 import org.robolectric.AndroidManifest;
+import org.robolectric.Robolectric;
 import org.robolectric.internal.HiddenApi;
 import org.robolectric.internal.Implementation;
 import org.robolectric.internal.Implements;
 import org.robolectric.internal.RealObject;
 import org.robolectric.res.Attribute;
 import org.robolectric.res.ResourceLoader;
-import org.robolectric.res.builder.RobolectricPackageManager;
 import org.robolectric.tester.android.content.TestSharedPreferences;
 
 import java.io.File;
@@ -38,15 +38,12 @@ import java.util.Set;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.database.sqlite.SQLiteDatabase.CursorFactory;
-import static org.robolectric.Robolectric.directlyOn;
 import static org.robolectric.Robolectric.shadowOf;
 
 @SuppressWarnings({"UnusedDeclaration"})
 @Implements(ContextWrapper.class)
 public class ShadowContextWrapper extends ShadowContext {
     @RealObject private ContextWrapper realContextWrapper;
-
-    private PackageManager packageManager;
 
     private String appName;
     private String packageName;
@@ -222,14 +219,7 @@ public class ShadowContextWrapper extends ShadowContext {
      */
     @Implementation
     public PackageManager getPackageManager() {
-        return realContextWrapper == getApplicationContext() ? requirePackageManager() : getApplicationContext().getPackageManager();
-    }
-
-    private PackageManager requirePackageManager() {
-        if (packageManager == null) {
-            packageManager = new RobolectricPackageManager(realContextWrapper, new AndroidManifest(new File(".")));
-        }
-        return packageManager;
+        return Robolectric.packageManager;
     }
 
     @Implementation
@@ -322,16 +312,6 @@ public class ShadowContextWrapper extends ShadowContext {
     public void setPackageName(String packageName) {
         this.packageName = packageName;
     }
-
-    /**
-     * Non-Android accessor that is used at start-up to set the packageManager =
-     *
-     * @param packageManager the package manager
-     */
-    public void setPackageManager(PackageManager packageManager) {
-        this.packageManager = packageManager;
-    }
-
 
     @Implementation
     public Looper getMainLooper() {
