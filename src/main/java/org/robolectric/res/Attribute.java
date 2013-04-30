@@ -56,6 +56,10 @@ public class Attribute {
         return matcher.group(1);
     }
 
+    public ResName getReferenceResName() {
+        return ResName.qualifyResName(value.substring(1).replace("+", ""), contextPackageName, null);
+    }
+
     @Override
     public String toString() {
         return "Attribute{" +
@@ -129,10 +133,18 @@ public class Attribute {
     }
 
     public String qualifiedValue() {
-        if (value.startsWith("@")) {
+        if (isReference()) {
             return ResName.qualifyResourceName(value.substring(1), contextPackageName, null);
         } else {
             return value;
         }
+    }
+
+    public boolean isReference() {
+        return value.startsWith("@");
+    }
+
+    public boolean isNull() {
+        return "@null".matches(value);
     }
 }
